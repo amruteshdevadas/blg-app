@@ -6,8 +6,6 @@ const HomePage = () => {
   const { data: articlesData, isFetching: blogsFetching } = useQuery({
     queryKey: ["blogs"],
     queryFn: () => getAllBlogs(),
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
   });
 
   return (

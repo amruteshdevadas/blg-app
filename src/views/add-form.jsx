@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Container,
   TextField,
@@ -7,11 +7,17 @@ import {
   Paper,
   Grid,
 } from "@mui/material";
+import { useMutation, QueryClient, useQuery } from "@tanstack/react-query";
 
-import { addSingleBlog } from "../apis";
+import { addSingleBlog, editSingleBlog, getSingleBlog } from "../apis";
 import { avatar } from "../utils";
+import { useNavigate, useParams } from "react-router-dom";
 
 const BlogForm = () => {
+  const navigate = useNavigate();
+  const queryClient = new QueryClient();
+  const params = useParams();
+  const id = params?.id || "";
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -23,6 +29,52 @@ const BlogForm = () => {
       avatar: avatar,
     },
     publishedDate: new Date(),
+  });
+
+  const { data: singleArticleData } = useQuery({
+    queryKey: ["single-blog"],
+    queryFn: () => getSingleBlog(id),
+    enabled: !!id,
+  });
+
+  // Mutations
+  const { mutate: addBlogMutation } = useMutation({
+    mutationFn: addSingleBlog,
+    onSuccess: () => {
+      // alert("Blog added successfully!");
+      setFormData({
+        title: "",
+        description: "",
+        image: "",
+        content: "",
+        author: { name: "", bio: "", avatar: "" },
+        publishedDate: "",
+      });
+      queryClient.invalidateQueries(["blogs"]);
+      navigate("/");
+    },
+    onError: (error) => {
+      console.error(error);
+    },
+  });
+
+  const { mutate: editBlogMutation } = useMutation({
+    mutationFn: editSingleBlog,
+    onSuccess: () => {
+      setFormData({
+        title: "",
+        description: "",
+        image: "",
+        content: "",
+        author: { name: "", bio: "", avatar: "" },
+        publishedDate: "",
+      });
+      queryClient.invalidateQueries(["blogs"]);
+      navigate("/");
+    },
+    onError: (error) => {
+      console.error(error);
+    },
   });
 
   const handleChange = (e) => {
@@ -40,34 +92,32 @@ const BlogForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
-
-    return;
     try {
-      const response = await addSingleBlog(formData);
-
-      if (!response.ok) throw new Error("Failed to submit blog");
-
-      alert("Blog added successfully!");
-      setFormData({
-        title: "",
-        description: "",
-        image: "",
-        content: "",
-        author: { name: "", bio: "", avatar: "" },
-        publishedDate: "",
-      });
+      if (id) return editBlogMutation({ id, payload: formData });
+      addBlogMutation(formData);
+      return;
     } catch (error) {
       console.error("Error submitting blog:", error);
       alert("Error submitting blog.");
     }
   };
 
+  useMemo(() => {
+    if (!singleArticleData) return;
+    setFormData({
+      title: singleArticleData?.title || "",
+      description: singleArticleData?.description || "",
+      image: singleArticleData?.image || "",
+      content: singleArticleData?.content || "",
+    });
+    return;
+  }, [singleArticleData]);
+
   return (
     <Container maxWidth="md">
       <Paper elevation={3} sx={{ padding: 4, mt: 4 }}>
         <Typography variant="h4" gutterBottom>
-          Add a New Blog
+          {id ? "Edit" : "Add a New"} Blog
         </Typography>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
@@ -114,7 +164,7 @@ const BlogForm = () => {
               />
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid item xs={3}>
               <Button
                 type="submit"
                 variant="contained"

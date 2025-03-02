@@ -1,5 +1,7 @@
 import { MainLayout } from "./layouts";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import theme from "./theme";
+import { ThemeProvider } from "@mui/material";
 
 function App() {
   // Create a client
@@ -7,7 +9,9 @@ function App() {
   return (
     <>
       <QueryClientProvider client={queryClient}>
-        <MainLayout></MainLayout>
+        <ThemeProvider theme={theme}>
+          <MainLayout></MainLayout>
+        </ThemeProvider>
       </QueryClientProvider>
     </>
   );
