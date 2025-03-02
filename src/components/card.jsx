@@ -5,12 +5,16 @@ const card = (props) => {
       key={id}
       className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-105"
     >
-      <img className="w-full h-48 object-cover" src={image} alt={title} />
+      <img
+        className="w-full h-48 object-cover"
+        src={image || "src/assets/default-thumbnail.svg"}
+        alt={title}
+      />
       <div className="p-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-2">{title}</h2>
         <p className="text-gray-600 mb-4">{description}</p>
         <a
-          href={`/article/${id}`}
+          href={`/blog/${id}`}
           className="text-blue-500 hover:underline text-sm"
         >
           Read more &rarr;
