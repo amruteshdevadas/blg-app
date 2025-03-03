@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Container,
   TextField,
@@ -103,7 +103,7 @@ const BlogForm = () => {
   };
 
   useMemo(() => {
-    if (!singleArticleData) return;
+    if (!singleArticleData && !id) return;
     setFormData({
       title: singleArticleData?.title || "",
       description: singleArticleData?.description || "",
@@ -111,7 +111,22 @@ const BlogForm = () => {
       content: singleArticleData?.content || "",
     });
     return;
-  }, [singleArticleData]);
+  }, [singleArticleData, id]);
+
+  useEffect(() => {
+    setFormData({
+      title: "",
+      description: "",
+      image: "",
+      content: "",
+      author: {
+        name: "Admin",
+        bio: "Admin",
+        avatar: avatar,
+      },
+      publishedDate: new Date(),
+    });
+  }, [id]);
 
   return (
     <Container maxWidth="md">

@@ -1,6 +1,12 @@
 import { useState } from "react";
 
-import { TextField, CircularProgress, List, ListItem } from "@mui/material";
+import {
+  TextField,
+  CircularProgress,
+  List,
+  ListItem,
+  InputAdornment,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 export default function SearchBar() {
@@ -37,6 +43,7 @@ export default function SearchBar() {
   };
 
   const handleItemClick = (item) => {
+    if (!query.trim()) return;
     router(`/search?query=${item}`);
   };
 
@@ -47,20 +54,29 @@ export default function SearchBar() {
   };
 
   return (
-    <div className="relative w-[250px]">
-      <TextField
-        // variant="outlined"
-        fullWidth
-        value={query}
-        onChange={handleChange}
-        placeholder="Search..."
-        size="small"
-        handleKeyPress={handleKeyPress}
-      />
+    <div className="relative w-[280px]">
+      <div className="flex items-center gap-2">
+        <TextField
+          // variant="outlined"
+          fullWidth
+          value={query}
+          onChange={handleChange}
+          placeholder="Search..."
+          size="small"
+          handlekeyPress={handleKeyPress}
+        />
+        <img
+          src="/src/assets/search.svg"
+          width="16"
+          height={16}
+          onClick={() => handleItemClick(query)}
+          className="cursor-pointer"
+        />
+      </div>
       {loading && (
         <CircularProgress
           size={20}
-          sx={{ position: "absolute", right: 10, top: 15 }}
+          sx={{ position: "absolute", right: 31, top: 11 }}
         />
       )}
       {query && results.length > 0 && (
